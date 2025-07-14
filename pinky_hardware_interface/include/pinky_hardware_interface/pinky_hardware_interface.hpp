@@ -33,8 +33,12 @@ namespace pinky_hardware_interface
             dynamixel::PortHandler* port_;
             dynamixel::PacketHandler* packet_;
 
+            std::shared_ptr<dynamixel::GroupBulkRead> bulk_read_;
+            std::shared_ptr<dynamixel::GroupBulkWrite> bulk_write_;
+
             double profile_acceleration_;
             double profile_velocity_;
+            std::vector<double> last_positions_;
     };
 }
 

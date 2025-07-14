@@ -12,6 +12,8 @@
   <depend>pinky_description</depend>
   <depend>pinky_hardware_interface</depend>
   <depend>controller_manager</depend>
+  <depend>ros2_control</depend>
+  <depend>ros2_controllers</depend>
   <depend>joint_state_broadcaster</depend>
   <depend>ros2controlcli</depend>
 
