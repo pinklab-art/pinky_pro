@@ -1,0 +1,9 @@
+<library path="pinky_hardware_interface">
+    <class  name="pinky_hardware_interface/PinkySystemHardwareInterface"
+            type="pinky_hardware_interface::PinkySystemHardwareInterface"
+            base_class_type="hardware_interface::SystemInterface">
+        <description>
+            The ROS2 Control Hardware Interface for Pinky Robot System.
+        </description>
+    </class>
+</library>

@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="insert_robot" params="namespace">
+        <xacro:include filename="$(find pinky_description)/urdf/common/insert_inertia.urdf.xacro"/>
+        <xacro:include filename="$(find pinky_description)/urdf/pinky_ros2_control.urdf.xacro"/>
+
+        <link name="base_footprint"/>
+        <link name="base_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/base_link.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/base_link.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="-0.025 0 0.025" rpy="0 0 0"/>
+                <mass value="0.8"/>
+                <xacro:box_inertia m="0.8" x="0.09" y="0.08" z="0.086"/>
+            </inertial>
+        </link>
+
+        <joint name="base_link_fixed_joint" type="fixed">
+            <parent link="base_footprint"/>
+            <child link="base_link"/>
+            <origin xyz="0 0 0.028" rpy="0 0 0"/>
+        </joint>
+
+        <xacro:macro name="insert_wheel" params="side dir">
+            <link name="${side}_wheel">
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 ${dir*pi/2}"/>
+                    <geometry>
+                        <mesh filename="package://pinky_description/meshes/visual/main_wheel.dae" scale="1 1 1"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <origin xyz="0 ${dir*0.008} 0" rpy="0 0 0"/>
+                    <geometry>
+                        <sphere radius="0.028"/>
+                    </geometry>
+                </collision>
+                <inertial>
+                    <origin xyz="0 ${dir*0.008} 0" rpy="0 0 0"/>
+                    <mass value="0.2"/>
+                    <xacro:sphere_inertia m="0.2" r="0.028"/>
+                </inertial>
+            </link>
+
+            <joint name="${side}_wheel_joint" type="continuous">
+                <parent link="base_link"/>
+                <child link="${side}_wheel"/>
+                <axis xyz="0 1 0"/>
+                <origin xyz="0 ${dir*0.04055} 0" rpy="0 0 0"/>
+            </joint>
+        </xacro:macro>
+
+        <xacro:insert_wheel side="l" dir="1"/>
+        <xacro:insert_wheel side="r" dir="-1"/>
+
+        <link name="caster_mount_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/caster_mount.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/caster_mount.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="0 0 -0.0015" rpy="0 0 0"/>
+                <mass value="0.1"/>
+                <xacro:box_inertia m="0.1" x="0.028" y="0.027" z="0.0035"/>
+            </inertial>
+        </link>
+
+        <joint name="caster_mount_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="caster_mount_link"/>
+            <origin xyz="-0.0585 0 -0.007" rpy="0 0 0"/>
+        </joint>
+
+        <link name="caster_roate_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/caster_rotate.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/caster_rotate.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="-0.010 0 -0.006" rpy="0 0 0"/>
+                <mass value="0.05"/>
+                <xacro:box_inertia m="0.05" x="0.018" y="0.016" z="0.010"/>
+            </inertial>
+        </link>
+
+        <joint name="caster_rotate_joint" type="continuous">
+            <parent link="caster_mount_link"/>
+            <child link="caster_roate_link"/>
+            <axis xyz="0 0 1"/>
+            <origin xyz="0 0 -0.0035" rpy="0 0 0"/>
+        </joint>
+
+        <link name="caster_wheel">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/caster_wheel.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.00625"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="0.05"/>
+                <xacro:sphere_inertia m="0.05" r="0.00625"/>
+            </inertial>
+        </link>
+
+        <joint name="caster_wheel_joint" type="continuous">
+            <parent link="caster_roate_link"/>
+            <child link="caster_wheel"/>
+            <axis xyz="0 1 0"/>
+            <origin xyz="-0.011 0 -0.011" rpy="0 0 0"/>
+        </joint>
+
+        <link name="robot_lamp">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/robot_lamp.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/robot_lamp.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="-0.06425 0 0.078" rpy="0 0 0"/>
+                <mass value="0.01"/>
+                <xacro:box_inertia m="0.01" x="0.0165" y="0.058" z="0.018"/>
+            </inertial>
+        </link>
+
+        <joint name="robot_lamp_mount_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="robot_lamp"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </joint>
+
+        <link name="rplidar_mount">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/rplidar_c1.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/rplidar_c1.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="0 0 0.021" rpy="0 0 0"/>
+                <mass value="0.11"/>
+                <xacro:cylinder_inertia m="0.11" r="0.025" h="0.042"/>
+            </inertial>
+        </link>
+
+        <joint name="rplidar_mount_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="rplidar_mount"/>
+            <origin xyz="-0.017 0 0.067" rpy="0 0 0"/>
+        </joint>
+
+        <link name="rplidar_link"/>
+        <joint name="rplidar_link_fixed_joint" type="fixed">
+            <parent link="rplidar_mount"/>
+            <child link="rplidar_link"/>
+            <origin xyz="0 0 0.030" rpy="0 0 0"/>
+        </joint>
+
+        <link name="front_camera_link"/>
+        <joint name="front_camera_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="front_camera_link"/>
+            <origin xyz="0.032 0 0.0345" rpy="0 0 0"/>
+        </joint>
+
+        <link name="ultrasonic_link"/>
+        <joint name="ultrasonic_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ultrasonic_link"/>
+            <origin xyz="0.0267 0 0.009" rpy="0 0 0"/>
+        </joint>
+
+        <link name="ir_mid_link"/>
+        <joint name="ir_mid_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ir_mid_link"/>
+            <origin xyz="0.0295 0 -0.015" rpy="0 0 0"/>
+        </joint>
+
+        <link name="ir_l_link"/>
+        <joint name="ir_l_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ir_l_link"/>
+            <origin xyz="0.0295 0.02 -0.015" rpy="0 0 0"/>
+        </joint>
+
+        <link name="ir_r_link"/>
+        <joint name="ir_r_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ir_r_link"/>
+            <origin xyz="0.0295 -0.02 -0.015" rpy="0 0 0"/>
+        </joint>
+
+        <xacro:insert_ros2_control name="pinky"/>
+    </xacro:macro>
+</robot>
