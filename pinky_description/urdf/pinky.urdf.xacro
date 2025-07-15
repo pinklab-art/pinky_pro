@@ -237,6 +237,13 @@
             <origin xyz="0.0295 -0.02 -0.015" rpy="0 0 0"/>
         </joint>
 
+        <link name="imu_link"/>
+        <joint name="imu_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="imu_link"/>
+            <origin xyz="-0.044 0 0.0525" rpy="0 0 0"/>
+        </joint>
+
         <xacro:insert_ros2_control name="pinky"/>
     </xacro:macro>
 </robot>

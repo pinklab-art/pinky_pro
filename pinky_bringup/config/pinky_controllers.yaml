@@ -44,7 +44,7 @@
       linear.x.has_acceleration_limits: true
       linear.x.max_velocity: 0.5
       linear.x.min_velocity: -0.5
-      linear.x.max_acceleration: 1.0
+      linear.x.max_acceleration: 0.8
 
   gpio_controller:
     ros__parameters:

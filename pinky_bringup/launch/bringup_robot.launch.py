@@ -92,12 +92,40 @@ def generate_launch_description():
         )
     )
 
+    imu_node = Node(
+        package="pinky_imu_bno055",
+        executable="main_node",
+        namespace=LaunchConfiguration('namespace'),
+        respawn=True,
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+        parameters=[{
+            "frame_id": "imu_link",
+            "rate": 100.0
+        }]
+    )
+
+    rplidar_bringup = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('rplidar_ros'),
+            '/launch/rplidar_c1_launch.py']
+        ),
+        launch_arguments = {
+            'serial_port': "/dev/ttyAMA0",
+            'frame_id': "lidar_link",
+        }.items()
+    )
+
     nodes = [
         upload_robot,
         controller_manager,
         load_base_controller,
         delay_gpio_after_base_controller_spawner,
         delay_joint_state_broadcaster_after_gpio_controller_spawner,
+        imu_node,
+        rplidar_bringup,
     ]
 
     return LaunchDescription(declared_arguments + nodes)

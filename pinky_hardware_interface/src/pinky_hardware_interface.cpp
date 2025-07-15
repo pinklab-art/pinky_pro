@@ -189,7 +189,7 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(con
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        ret = packet_->write4ByteTxRx(port_, (uint8_t)id, 108, 0, &dxl_error);  // Profile Acceleration
+        ret = packet_->write4ByteTxRx(port_, (uint8_t)id, 108, 200, &dxl_error);  // Profile Acceleration
         if(ret != COMM_SUCCESS)
         {
             RCLCPP_FATAL(get_logger(), "Error [%d] ProfileAcceleration@on_activate.", (int)id);
@@ -203,14 +203,14 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(con
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 78, 120, &dxl_error);  // Velocity P Gain
+        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 78, 180, &dxl_error);  // Velocity P Gain
         if(ret != COMM_SUCCESS)
         {
             RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 76, 400, &dxl_error);  // Velocity I Gain
+        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 76, 1600, &dxl_error);  // Velocity I Gain
         if(ret != COMM_SUCCESS)
         {
             RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
