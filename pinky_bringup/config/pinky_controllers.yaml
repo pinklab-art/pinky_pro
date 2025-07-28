@@ -54,7 +54,7 @@
         gpio:
           - interfaces:
             - enable_torque
-            - set_led
+            - set_motor_led
       state_interfaces:
         gpio:
           - interfaces:

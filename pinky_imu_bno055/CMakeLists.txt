@@ -13,17 +13,20 @@ find_package(std_msgs REQUIRED)
 find_package(angles REQUIRED)
 find_package(realtime_tools REQUIRED)
 
+if(CMAKE_GENERATOR_PLATFORM STREQUAL "arm64")
+  add_executable(main_node src/main_node.cpp)
+  ament_target_dependencies(main_node sensor_msgs rclcpp angles realtime_tools)
+  target_link_libraries(main_node
+    wiringPi
+  )
 
-add_executable(main_node src/main_node.cpp)
-ament_target_dependencies(main_node sensor_msgs rclcpp angles realtime_tools)
-target_link_libraries(main_node
-  wiringPi
-)
-
-install(TARGETS
-  main_node
-  DESTINATION lib/${PROJECT_NAME}
-)
+  install(TARGETS
+    main_node
+    DESTINATION lib/${PROJECT_NAME}
+  )
+else()
+  message(STATUS "${PROJECT_NAME} build only for ARM64. Skip building.")
+endif()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -10,20 +10,25 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
-add_executable(main_node src/main_node.cpp)
-ament_target_dependencies(main_node rclcpp std_msgs)
-target_include_directories(main_node
-  PUBLIC
-  /usr/local/include
-)
-target_link_libraries(main_node
-  ws2811
-)
 
-install(TARGETS
-  main_node
-  DESTINATION lib/${PROJECT_NAME}
-)
+if(CMAKE_GENERATOR_PLATFORM STREQUAL "arm64")
+  add_executable(main_node src/main_node.cpp)
+  ament_target_dependencies(main_node rclcpp std_msgs)
+  target_include_directories(main_node
+    PUBLIC
+    /usr/local/include
+  )
+  target_link_libraries(main_node
+    ws2811
+  )
+
+  install(TARGETS
+    main_node
+    DESTINATION lib/${PROJECT_NAME}
+  )
+else()
+  message(STATUS "${PROJECT_NAME} build only for ARM64. Skip building.")
+endif()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

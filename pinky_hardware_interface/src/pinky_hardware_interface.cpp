@@ -133,7 +133,7 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_configure(co
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(const rclcpp_lifecycle::State & previous_state)
+hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(const rclcpp_lifecycle::State& /* previous_state */)
 {
     // Activate the hardware related
     RCLCPP_INFO(get_logger(), "Activating ...please wait...");
@@ -238,7 +238,7 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(con
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /* previous_state */)
 {
     // Deactivate the hardware related
     RCLCPP_INFO(get_logger(), "Deactivating ...please wait...");
@@ -267,7 +267,7 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_deactivate(c
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type PinkySystemHardwareInterface::read(const rclcpp::Time & time, const rclcpp::Duration & period)
+hardware_interface::return_type PinkySystemHardwareInterface::read(const rclcpp::Time& /* time */, const rclcpp::Duration& period)
 {
     int ret = 0;
     ret = bulk_read_->txRxPacket();
@@ -296,7 +296,7 @@ hardware_interface::return_type PinkySystemHardwareInterface::read(const rclcpp:
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type PinkySystemHardwareInterface::write(const rclcpp::Time & time, const rclcpp::Duration & period)
+hardware_interface::return_type PinkySystemHardwareInterface::write(const rclcpp::Time& /* time */, const rclcpp::Duration& /* period */)
 {
     uint8_t param_goal_value[4] = {0, 0, 0, 0};
 
