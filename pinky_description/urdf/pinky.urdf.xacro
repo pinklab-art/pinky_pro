@@ -216,9 +216,9 @@
                 </geometry>
             </collision>
             <inertial>
-                <origin xyz="-0.06425 0 0.078" rpy="0 0 0"/>
+                <origin xyz="0.01 0 -0.0121" rpy="0 0 0"/>
                 <mass value="0.01"/>
-                <xacro:box_inertia m="0.01" x="0.0165" y="0.058" z="0.018"/>
+                <xacro:box_inertia m="0.01" x="0.0165" y="0.045" z="0.030"/>
             </inertial>
         </link>
 
