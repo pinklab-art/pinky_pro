@@ -17,7 +17,7 @@ def static_lidar_link(context):
                 name="static_lidar_tf_pub",
                 executable='static_transform_publisher',
                 arguments=[
-                    '--frame-id', [LaunchConfiguration('namespace'), '/lidar_link'],
+                    '--frame-id', [LaunchConfiguration('namespace'), '/rplidar_link'],
                     '--child-frame-id', 'pinky/base_footprint/gpu_lidar',
                 ],
                 parameters=[{
@@ -33,7 +33,7 @@ def static_lidar_link(context):
                 name="static_lidar_tf_pub",
                 executable='static_transform_publisher',
                 arguments=[
-                    '--frame-id', [LaunchConfiguration('namespace'), '/lidar_link'],
+                    '--frame-id', [LaunchConfiguration('namespace'), '/rplidar_link'],
                     '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/gpu_lidar'],
                 ],
                 parameters=[{
