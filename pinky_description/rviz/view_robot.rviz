@@ -8,7 +8,6 @@ Panels:
         - /Status1
         - /RobotModel1
         - /RobotModel1/Mass Properties1
-        - /RobotModel1/Links1
       Splitter Ratio: 0.5
     Tree Height: 1578
   - Class: rviz_common/Selection
@@ -69,6 +68,8 @@ Visualization Manager:
           Value: true
         front_camera_link:
           Value: true
+        imu_link:
+          Value: true
         ir_l_link:
           Value: true
         ir_mid_link:
@@ -100,6 +101,8 @@ Visualization Manager:
                 caster_wheel:
                   {}
             front_camera_link:
+              {}
+            imu_link:
               {}
             ir_l_link:
               {}
@@ -133,7 +136,7 @@ Visualization Manager:
         Value: /robot_description
       Enabled: true
       Links:
-        All Links Enabled: false
+        All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
@@ -151,18 +154,22 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         caster_roate_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         caster_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         front_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -182,17 +189,17 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         r_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         robot_lamp:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         rplidar_link:
           Alpha: 1
           Show Axes: false
@@ -201,13 +208,13 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: false
+          Value: true
         ultrasonic_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
       Mass Properties:
-        Inertia: true
+        Inertia: false
         Mass: false
       Name: RobotModel
       TF Prefix: ""
@@ -267,18 +274,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.03293982520699501
-        Y: -0.00905877910554409
-        Z: 0.05949584022164345
+        X: -0.029023077338933945
+        Y: -0.0048074740916490555
+        Z: 0.05298328027129173
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.25539886951446533
+      Pitch: 0.5053983330726624
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.500398874282837
+      Yaw: 0.9453976154327393
     Saved: ~
 Window Geometry:
   Displays:
