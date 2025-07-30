@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="insert_gz_sim" params="namespace">
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <ros>
+                    <namespace>${namespace}</namespace>
+                </ros>
+                <parameters>$(find pinky_bringup)/config/pinky_controllers.yaml</parameters>
+            </plugin>
+            <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+                <render_engine>ogre2</render_engine>
+            </plugin>
+            <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster">
+            </plugin>
+            <plugin filename="gz-sim-lamp-control-system" name="pinky_gz_sim::LampControlPlugin">
+                <link>robot_lamp</link>
+            </plugin>
+        </gazebo>
+
+        <gazebo reference="l_wheel">
+            <self_collide>0</self_collide>
+            <mu1>200</mu1>
+            <mu2>200</mu2>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <!-- <minDepth>0.001</minDepth> -->
+        </gazebo>
+
+        <gazebo reference="r_wheel">
+            <self_collide>0</self_collide>
+            <mu1>200</mu1>
+            <mu2>200</mu2>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <!-- <minDepth>0.001</minDepth> -->
+        </gazebo>
+
+        <gazebo reference="caster_wheel">
+            <self_collide>0</self_collide>
+            <mu1>0.1</mu1>
+            <mu2>0.1</mu2>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <!-- <minDepth>0.001</minDepth> -->
+        </gazebo>
+
+        <gazebo reference="robot_lamp_mount_fixed_joint">
+            <disableFixedJointLumping>true</disableFixedJointLumping>
+        </gazebo>
+    </xacro:macro>
+</robot>

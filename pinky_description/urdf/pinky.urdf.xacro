@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="insert_robot" params="namespace front_camera_tilt_deg">
+    <xacro:macro name="insert_robot" params="namespace is_sim:=false sim_type:=gz_sim cam_tilt_deg">
         <xacro:include filename="$(find pinky_description)/urdf/common/insert_inertia.urdf.xacro"/>
         <xacro:include filename="$(find pinky_description)/urdf/pinky_ros2_control.urdf.xacro"/>
 
@@ -225,7 +225,7 @@
         <joint name="front_camera_mount_fixed_joint" type="fixed">
             <parent link="base_link"/>
             <child link="front_camera_mount"/>
-            <origin xyz="0.020 0 0.0495" rpy="0 ${front_camera_tilt_deg/180*pi} 0"/>
+            <origin xyz="0.020 0 0.0495" rpy="0 ${cam_tilt_deg/180*pi} 0"/>
         </joint>
 
         <link name="front_camera_link"/>
@@ -270,6 +270,12 @@
             <origin xyz="-0.044 0 0.0525" rpy="0 0 0"/>
         </joint>
 
-        <xacro:insert_ros2_control name="pinky"/>
+        <xacro:if value="${is_sim}">
+            <xacro:if value="${sim_type == 'gz_sim'}">
+                <xacro:include filename="$(find pinky_description)/urdf/pinky_gz.urdf.xacro"/>
+                <xacro:insert_gz_sim namespace="${namespace}"/>
+            </xacro:if>
+        </xacro:if>
+        <xacro:insert_ros2_control name="pinky" is_sim="${is_sim}" sim_type="${sim_type}"/>
     </xacro:macro>
 </robot>
