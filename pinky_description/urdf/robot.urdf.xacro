@@ -2,6 +2,8 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="pinky">
     <xacro:include filename="$(find pinky_description)/urdf/pinky.urdf.xacro"/>
 
+    <xacro:arg name="front_camera_tilt_deg" default="0.0"/>
+
     <xacro:arg name="namespace" default=""/>
-    <xacro:insert_robot namespace="$(arg namespace)"/>
+    <xacro:insert_robot namespace="$(arg namespace)" front_camera_tilt_deg="$(arg front_camera_tilt_deg)"/>
 </robot>
