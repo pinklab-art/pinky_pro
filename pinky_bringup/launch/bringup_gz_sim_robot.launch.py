@@ -21,7 +21,7 @@ def static_lidar_link(context):
                     '--child-frame-id', 'pinky/base_footprint/gpu_lidar',
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -36,7 +36,7 @@ def static_lidar_link(context):
                     '--child-frame-id', 'pinky/base_footprint/camera',
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -51,7 +51,7 @@ def static_lidar_link(context):
                     '--child-frame-id', 'pinky/base_footprint/imu',
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -67,7 +67,7 @@ def static_lidar_link(context):
                     '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/gpu_lidar'],
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -82,7 +82,7 @@ def static_lidar_link(context):
                     '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/camera'],
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -97,7 +97,7 @@ def static_lidar_link(context):
                     '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/imu'],
                 ],
                 parameters=[{
-                    "use_sim_time": LaunchConfiguration('is_sim')
+                    "use_sim_time": True
                 }],
                 output='screen'
             )
@@ -108,7 +108,6 @@ def static_lidar_link(context):
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     namespace_launch_arg = DeclareLaunchArgument("namespace", default_value="")
-    is_sim = DeclareLaunchArgument("is_sim", default_value="true")
     world = DeclareLaunchArgument("world", default_value="default.sdf")
 
     upload_robot = IncludeLaunchDescription(
@@ -146,7 +145,7 @@ def generate_launch_description():
             '-y', '0.0',
         ],
         parameters=[{
-            "use_sim_time": LaunchConfiguration('is_sim')
+            "use_sim_time": True
         }],
     )
 
@@ -157,7 +156,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         arguments=["joint_state_broadcaster", "--controller-manager", "controller_manager"],
         parameters=[{
-            "use_sim_time": LaunchConfiguration('is_sim')
+            "use_sim_time": True
         }],
     )
 
@@ -167,7 +166,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         arguments=["base_controller", "--controller-manager", "controller_manager"],
         parameters=[{
-            "use_sim_time": LaunchConfiguration('is_sim')
+            "use_sim_time": True
         }],
     )
 
@@ -182,7 +181,7 @@ def generate_launch_description():
         ],
         output='screen',
         parameters=[{
-            "use_sim_time": LaunchConfiguration('is_sim')
+            "use_sim_time": True
         }],
     )
 
@@ -194,13 +193,12 @@ def generate_launch_description():
         ],
         output='screen',
         parameters=[{
-            "use_sim_time": LaunchConfiguration('is_sim')
+            "use_sim_time": True
         }],
     )
 
     return LaunchDescription([
         namespace_launch_arg,
-        is_sim,
         world,
         upload_robot,
         bringup_gz_sim,
