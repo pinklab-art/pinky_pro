@@ -26,6 +26,36 @@ def static_lidar_link(context):
                 output='screen'
             )
         )
+        nodes.append(
+            Node(
+                package='tf2_ros',
+                name="static_lidar_tf_pub",
+                executable='static_transform_publisher',
+                arguments=[
+                    '--frame-id', [LaunchConfiguration('namespace'), '/front_camera_link'],
+                    '--child-frame-id', 'pinky/base_footprint/camera',
+                ],
+                parameters=[{
+                    "use_sim_time": LaunchConfiguration('is_sim')
+                }],
+                output='screen'
+            )
+        )
+        nodes.append(
+            Node(
+                package='tf2_ros',
+                name="static_lidar_tf_pub",
+                executable='static_transform_publisher',
+                arguments=[
+                    '--frame-id', [LaunchConfiguration('namespace'), '/imu_link'],
+                    '--child-frame-id', 'pinky/base_footprint/imu',
+                ],
+                parameters=[{
+                    "use_sim_time": LaunchConfiguration('is_sim')
+                }],
+                output='screen'
+            )
+        )
     else:
         nodes.append(
             Node(
@@ -42,12 +72,43 @@ def static_lidar_link(context):
                 output='screen'
             )
         )
+        nodes.append(
+            Node(
+                package='tf2_ros',
+                name="static_lidar_tf_pub",
+                executable='static_transform_publisher',
+                arguments=[
+                    '--frame-id', [LaunchConfiguration('namespace'), '/front_camera_link'],
+                    '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/camera'],
+                ],
+                parameters=[{
+                    "use_sim_time": LaunchConfiguration('is_sim')
+                }],
+                output='screen'
+            )
+        )
+        nodes.append(
+            Node(
+                package='tf2_ros',
+                name="static_lidar_tf_pub",
+                executable='static_transform_publisher',
+                arguments=[
+                    '--frame-id', [LaunchConfiguration('namespace'), '/imu_link'],
+                    '--child-frame-id', [LaunchConfiguration('namespace'), '/base_footprint/imu'],
+                ],
+                parameters=[{
+                    "use_sim_time": LaunchConfiguration('is_sim')
+                }],
+                output='screen'
+            )
+        )
 
     return nodes
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     namespace_launch_arg = DeclareLaunchArgument("namespace", default_value="")
+    is_sim = DeclareLaunchArgument("is_sim", default_value="true")
     world = DeclareLaunchArgument("world", default_value="default.sdf")
 
     upload_robot = IncludeLaunchDescription(
@@ -95,6 +156,9 @@ def generate_launch_description():
         output='screen',
         namespace=LaunchConfiguration('namespace'),
         arguments=["joint_state_broadcaster", "--controller-manager", "controller_manager"],
+        parameters=[{
+            "use_sim_time": LaunchConfiguration('is_sim')
+        }],
     )
 
     load_base_controller = Node(
@@ -102,6 +166,9 @@ def generate_launch_description():
         executable="spawner",
         namespace=LaunchConfiguration('namespace'),
         arguments=["base_controller", "--controller-manager", "controller_manager"],
+        parameters=[{
+            "use_sim_time": LaunchConfiguration('is_sim')
+        }],
     )
 
     ros_gz_bridge = Node(
@@ -109,23 +176,31 @@ def generate_launch_description():
         name="ros_gz_bridge_sensors",
         executable='parameter_bridge',
         arguments=[
-            [LaunchConfiguration('namespace'), '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan'],
+            [LaunchConfiguration('namespace'), '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan'],
+            [LaunchConfiguration('namespace'), '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo'],
+            [LaunchConfiguration('namespace'), '/imu_raw@sensor_msgs/msg/Imu[gz.msgs.IMU'],
         ],
-        output='screen'
+        output='screen',
+        parameters=[{
+            "use_sim_time": LaunchConfiguration('is_sim')
+        }],
     )
 
-    # ros_gz_image_bridge = Node(
-    #     package='ros_gz_image',
-    #     executable='image_bridge',
-    #     arguments=[
-    #         [LaunchConfiguration('namespace'), '/camera/image'],
-    #         [LaunchConfiguration('namespace'), '/camera/depth_image'],
-    #     ],
-    #     output='screen'
-    # )
+    ros_gz_image_bridge = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=[
+            [LaunchConfiguration('namespace'), '/camera/image_raw'],
+        ],
+        output='screen',
+        parameters=[{
+            "use_sim_time": LaunchConfiguration('is_sim')
+        }],
+    )
 
     return LaunchDescription([
         namespace_launch_arg,
+        is_sim,
         world,
         upload_robot,
         bringup_gz_sim,
@@ -151,7 +226,7 @@ def generate_launch_description():
                 on_exit=[
                     LogInfo(msg='base_controller spawned, spawn gz_bridge'),
                     ros_gz_bridge,
-                    # ros_gz_image_bridge,
+                    ros_gz_image_bridge,
                     OpaqueFunction(function=static_lidar_link)
                 ]
             )

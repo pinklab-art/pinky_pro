@@ -12,6 +12,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     namespace = DeclareLaunchArgument("namespace", default_value="")
+    is_sim = DeclareLaunchArgument("is_sim", default_value="false")
 
     rsp_node = Node(
         package='robot_state_publisher',
@@ -20,6 +21,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         parameters=[{
             'ignore_timestamp': False,
+            "use_sim_time": LaunchConfiguration('is_sim'),
             'robot_description':
                 Command([
                     'xacro ',
@@ -40,7 +42,8 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         parameters=[{
             "source_list": ['joint_states'],
-            "rate": 50.0,
+            "rate": 20.0,
+            "use_sim_time": LaunchConfiguration('is_sim'),
         }],
         remappings=[
             ('/robot_descrption', 'robot_descrpition'),
