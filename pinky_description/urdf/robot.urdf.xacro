@@ -2,14 +2,6 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="pinky">
     <xacro:include filename="$(find pinky_description)/urdf/pinky.urdf.xacro"/>
 
-    <xacro:arg name="cam_tilt_deg" default="0.0"/>
-    <xacro:arg name="is_sim" default="true"/>
-    <xacro:arg name="sim_type" default="gz_sim"/>   <!-- gz_sim / isaacsim -->
-
     <xacro:arg name="namespace" default=""/>
-    <xacro:insert_robot namespace="$(arg namespace)"
-                        is_sim="$(arg is_sim)"
-                        sim_type="$(arg sim_type)"
-                        cam_tilt_deg="$(arg cam_tilt_deg)"
-    />
+    <xacro:insert_robot namespace="$(arg namespace)"/>
 </robot>

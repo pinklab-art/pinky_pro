@@ -1,30 +1,13 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="insert_ros2_control" params="name is_sim sim_type">
+    <xacro:macro name="insert_ros2_control" params="name">
         <ros2_control name="${name}_system" type="system">
-            <xacro:if value="${is_sim}">
-                <xacro:if value="${sim_type == 'gz_sim'}">
-                    <hardware>
-                        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-                    </hardware>
-                </xacro:if>
-                <xacro:if value="${sim_type == 'isaacsim'}">
-                    <hardware>
-                        <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
-                        <param name="joint_commands_topic">isaac_pinky_joint_commands</param>
-                        <param name="joint_states_topic">isaac_pinky_joint_states</param>
-                        <param name="sum_wrapped_joint_states">true</param>
-                    </hardware>
-                </xacro:if>
-            </xacro:if>
-            <xacro:unless value="${is_sim}">
-                <hardware>
-                    <plugin>pinky_hardware_interface/PinkySystemHardwareInterface</plugin>
-                    <param name="interface_name">/dev/ttyAMA4</param>
-                    <param name="profile_acceleration">500</param>
-                    <param name="profile_velocity">1620</param>
-                </hardware>
-            </xacro:unless>
+            <hardware>
+                <plugin>pinky_hardware_interface/PinkySystemHardwareInterface</plugin>
+                <param name="interface_name">/dev/ttyAMA4</param>
+                <param name="profile_acceleration">500</param>
+                <param name="profile_velocity">1620</param>
+            </hardware>
 
             <joint name="l_wheel_joint">
                 <command_interface name="velocity">
@@ -45,22 +28,21 @@
                 <state_interface name="effort" />
             </joint>
 
-            <xacro:unless value="${is_sim}">
-                <gpio name="gpio">
-                    <command_interface name="enable_torque" />
-                    <command_interface name="set_led" />
-                    <state_interface name="l_motor_enabled" />
-                    <state_interface name="l_motor_hw_error_status" />
-                    <state_interface name="l_motor_present_voltage" />
-                    <state_interface name="l_motor_present_temp" />
-                    <state_interface name="l_motor_led"/>
-                    <state_interface name="r_motor_enabled" />
-                    <state_interface name="r_motor_hw_error_status" />
-                    <state_interface name="r_motor_present_voltage" />
-                    <state_interface name="r_motor_present_temp" />
-                    <state_interface name="r_motor_led"/>
-                </gpio>
-            </xacro:unless>
+            <gpio name="gpio">
+                <command_interface name="enable_torque" />
+                <command_interface name="set_led" />
+                <state_interface name="l_motor_enabled" />
+                <state_interface name="l_motor_hw_error_status" />
+                <state_interface name="l_motor_present_voltage" />
+                <state_interface name="l_motor_present_temp" />
+                <state_interface name="l_motor_led"/>
+                <state_interface name="r_motor_enabled" />
+                <state_interface name="r_motor_hw_error_status" />
+                <state_interface name="r_motor_present_voltage" />
+                <state_interface name="r_motor_present_temp" />
+                <state_interface name="r_motor_led"/>
+
+            </gpio>
         </ros2_control>
     </xacro:macro>
 </robot>

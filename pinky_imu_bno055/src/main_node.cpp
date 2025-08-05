@@ -12,6 +12,7 @@ class PinkyIMUBNO055 : public rclcpp::Node
     public:
         PinkyIMUBNO055() : Node("pinky_imu_bno055")
         {
+            this->declare_parameter<std::string>("interface", "/dev/i2c-0");
             this->declare_parameter<std::string>("frame_id", "imu_link");
             this->declare_parameter<double>("rate", 100.0);
 
@@ -20,8 +21,8 @@ class PinkyIMUBNO055 : public rclcpp::Node
             auto pub_imu = this->create_publisher<sensor_msgs::msg::Imu>("imu_raw", rclcpp::SystemDefaultsQoS());
             rt_pub_imu_ = std::make_shared<RealtimePublisher<sensor_msgs::msg::Imu>>(pub_imu);
 
-
-            fd_ = wiringPiI2CSetupInterface("/dev/i2c-0", 0x28);
+            auto interface = this->get_parameter("interface").get_parameter_value().get<std::string>();
+            fd_ = wiringPiI2CSetupInterface(interface.c_str(), 0x28);
             if (fd_ == -1) {
                 RCLCPP_FATAL(this->get_logger(), "Failed to init I2C communication.");
                 assert(false);

@@ -103,7 +103,49 @@ def generate_launch_description():
         },
         parameters=[{
             "frame_id": "imu_link",
+            "interface": "/dev/i2c-0",
             "rate": 100.0
+        }]
+    )
+
+    sensor_adc_node = Node(
+        package="pinky_sensor_adc",
+        executable="main_node",
+        namespace=LaunchConfiguration('namespace'),
+        respawn=True,
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+        parameters=[{
+            "interface": "/dev/i2c-1",
+            "rate": 20.0
+        }]
+    )
+
+    lamp_control_node = Node(
+        package="pinky_lamp_control",
+        executable="main_node",
+        namespace=LaunchConfiguration('namespace'),
+        respawn=True,
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+        parameters=[{
+        }]
+    )
+
+    screen_control_node = Node(
+        package="pinky_screen_control",
+        executable="main_node",
+        namespace=LaunchConfiguration('namespace'),
+        respawn=True,
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+        parameters=[{
         }]
     )
 
@@ -114,7 +156,7 @@ def generate_launch_description():
         ),
         launch_arguments = {
             'serial_port': "/dev/ttyAMA0",
-            'frame_id': "lidar_link",
+            'frame_id': "rplidar_link",
         }.items()
     )
 
@@ -125,6 +167,9 @@ def generate_launch_description():
         delay_gpio_after_base_controller_spawner,
         delay_joint_state_broadcaster_after_gpio_controller_spawner,
         imu_node,
+        sensor_adc_node,
+        lamp_control_node,
+        screen_control_node,
         rplidar_bringup,
     ]
 
