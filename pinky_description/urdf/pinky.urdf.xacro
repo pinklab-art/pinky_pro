@@ -192,7 +192,7 @@
         <joint name="rplidar_mount_fixed_joint" type="fixed">
             <parent link="base_link"/>
             <child link="rplidar_mount"/>
-            <origin xyz="-0.017 0 0.067" rpy="0 0 0"/>
+            <origin xyz="-0.017 0 0.067" rpy="0 0 ${pi}"/>
         </joint>
 
         <link name="rplidar_link"/>
