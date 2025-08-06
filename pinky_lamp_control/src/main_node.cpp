@@ -20,7 +20,7 @@ ws2811_t ledstring =
             .gpionum = 19,
             .invert = 0,
             .count = 8,
-            .strip_type = WS2811_STRIP_GRB,
+            .strip_type = WS2811_STRIP_GBR,
             .brightness = 255,
         },
     },
@@ -34,9 +34,10 @@ class PinkyLampControl : public rclcpp::Node
             matrix_ = (ws2811_led_t*)malloc(sizeof(ws2811_led_t) * 8);
 
             ws2811_return_t ret;
+            // ws2811_init(&ledstring);
             if ((ret = ws2811_init(&ledstring)) != WS2811_SUCCESS)
             {
-                RCLCPP_ERROR(this->get_logger(), "Error ws2811_init.");
+                RCLCPP_ERROR(this->get_logger(), "Error ws2811_init. %d", ret);
                 assert(false);
             }
 
