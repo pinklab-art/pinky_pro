@@ -43,13 +43,13 @@
       linear.x.has_acceleration_limits: true
       linear.x.max_velocity: 0.5
       linear.x.min_velocity: -0.5
-      linear.x.max_acceleration: 0.8
+      linear.x.max_acceleration: 1.5
 
       angular.z.has_velocity_limits: true
       angular.z.has_acceleration_limits: true
-      angular.z.max_velocity: 2.5
-      angular.z.min_velocity: -2.5
-      angular.z.max_acceleration: 3.5
+      angular.z.max_velocity: 3.5
+      angular.z.min_velocity: -3.5
+      angular.z.max_acceleration: 5.5
 
   gpio_controller:
     ros__parameters:

@@ -277,8 +277,10 @@ hardware_interface::return_type PinkySystemHardwareInterface::read(const rclcpp:
         return hardware_interface::return_type::ERROR;
     }
 
-    auto l_cur_vel = (int32_t)bulk_read_->getData(1, 128, 4) * (0.229 * (2.0 * M_PI) / 60.0);
-    auto r_cur_vel = (int32_t)bulk_read_->getData(2, 128, 4) * (0.229 * (2.0 * M_PI) / 60.0 * -1);
+    auto l_cur_vel = (int32_t)(bulk_read_->getData(1, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0);
+    auto r_cur_vel = (int32_t)(bulk_read_->getData(2, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0 * -1);
+
+    // RCLCPP_INFO(get_logger(), "%d %d %f %f", (int32_t)bulk_read_->getData(1, 128, 4), (int32_t)bulk_read_->getData(2, 128, 4), l_cur_vel, r_cur_vel);
 
     set_state("l_wheel_joint/velocity", l_cur_vel);
     set_state("r_wheel_joint/velocity", r_cur_vel);
