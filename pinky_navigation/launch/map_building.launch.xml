@@ -1,0 +1,11 @@
+<?xml version='1.0' ?>
+<launch>
+    <arg name="use_sim_time" default="false"/>
+    <arg name="slam_params_file" default="$(find-pkg-share pinky_navigation)/params/mapper_params.yaml"/>
+
+    <include file="$(find-pkg-share slam_toolbox)/launch/online_sync_launch.py">
+        <arg name="slam_params_file" value="$(var slam_params_file)"/>
+        <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    </include>
+    
+</launch>
