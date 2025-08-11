@@ -1,0 +1,8 @@
+<?xml version='1.0' ?>
+
+<launch>
+    <arg name="rviz_config_file" default="$(find-pkg-share vicpinky_navigation)/rviz/map_view.rviz"/>
+
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_file)">
+    </node>
+</launch>    
