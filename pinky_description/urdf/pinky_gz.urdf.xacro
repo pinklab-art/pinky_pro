@@ -5,6 +5,8 @@
             <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
                 <ros>
                     <namespace>${namespace}</namespace>
+                    <remapping>base_controller/cmd_vel:=cmd_vel</remapping> 
+                    <remapping>base_controller/odom:=odom</remapping> 
                 </ros>
                 <parameters>$(find pinky_bringup)/config/pinky_controllers.yaml</parameters>
             </plugin>
