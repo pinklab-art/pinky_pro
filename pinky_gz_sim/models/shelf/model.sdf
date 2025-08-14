@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='shelf'>
+    <pose>0 0 0 0 0 0</pose> <!-- 위치가 (0, 0, 0)이므로 변경 없음 -->
+    <self_collide>true</self_collide>
+    <!-- BASE_LINK FRAME -->
+    <link name='shelf_base'>
+      <pose>-0.2 0 0 0 0 0</pose> <!-- x: -0.5 * 0.4 = -0.2 -->
+      <collision name='shelf_chassi_collision'>
+        <pose>0 0 0.36 0 0 0</pose> <!-- z: 0.9 * 0.4 = 0.36 -->
+        <geometry>
+          <box>
+            <size>1.44 0.24 0.72</size> <!-- 3.6 * 0.4 = 1.44, 0.6 * 0.4 = 0.24, 1.8 * 0.4 = 0.72 -->
+          </box>
+        </geometry>
+      </collision>
+      <visual name='shelf_chassi_visual'>
+        <pose>0 0 0 0 0 0</pose> <!-- 위치가 (0, 0, 0)이므로 변경 없음 -->
+        <geometry>
+          <mesh>
+            <scale>0.08 0.12 0.12</scale> <!-- 0.2 * 0.4 = 0.08, 0.3 * 0.4 = 0.12, 0.3 * 0.4 = 0.12 -->
+            <uri>meshes/shelf_big_movai.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <static>1</static>
+  </model>
+</sdf>

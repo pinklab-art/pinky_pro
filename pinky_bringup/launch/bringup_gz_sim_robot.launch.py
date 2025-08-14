@@ -108,7 +108,7 @@ def static_lidar_link(context):
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     namespace_launch_arg = DeclareLaunchArgument("namespace", default_value="")
-    world = DeclareLaunchArgument("world", default_value="default.sdf")
+    world = DeclareLaunchArgument("world", default_value="pinky_factory.world")
 
     upload_robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -128,7 +128,7 @@ def generate_launch_description():
             '/launch/bringup_gz_sim.launch.py']
         ),
         launch_arguments = {
-            'world' : LaunchConfiguration('world')
+            'world_name' : LaunchConfiguration('world')
         }.items()
     )
 
