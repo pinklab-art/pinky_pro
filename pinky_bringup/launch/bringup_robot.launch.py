@@ -52,7 +52,9 @@ def generate_launch_description():
         output="both",
         respawn=False,
         remappings=[
-            ('~/robot_description',  'robot_description')
+            ('~/robot_description',  'robot_description'),
+            ('base_controller/cmd_vel', 'cmd_vel'),
+            ('base_controller/odom', 'odom'),
         ]
     )
 
@@ -151,8 +153,8 @@ def generate_launch_description():
 
     rplidar_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('rplidar_ros'),
-            '/launch/rplidar_c1_launch.py']
+            FindPackageShare('sllidar_ros2'),
+            '/launch/sllidar_c1_launch.py']
         ),
         launch_arguments = {
             'serial_port': "/dev/ttyAMA0",
