@@ -203,19 +203,19 @@ hardware_interface::CallbackReturn PinkySystemHardwareInterface::on_activate(con
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 78, 180, &dxl_error);  // Velocity P Gain
-        if(ret != COMM_SUCCESS)
-        {
-            RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
-            return hardware_interface::CallbackReturn::ERROR;
-        }
+        // ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 78, 180, &dxl_error);  // Velocity P Gain
+        // if(ret != COMM_SUCCESS)
+        // {
+        //     RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
+        //     return hardware_interface::CallbackReturn::ERROR;
+        // }
 
-        ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 76, 1600, &dxl_error);  // Velocity I Gain
-        if(ret != COMM_SUCCESS)
-        {
-            RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
-            return hardware_interface::CallbackReturn::ERROR;
-        }
+        // ret = packet_->write2ByteTxRx(port_, (uint8_t)id, 76, 1600, &dxl_error);  // Velocity I Gain
+        // if(ret != COMM_SUCCESS)
+        // {
+        //     RCLCPP_FATAL(get_logger(), "Error [%d] LedOn@on_activate.", (int)id);
+        //     return hardware_interface::CallbackReturn::ERROR;
+        // }
 
         //??
         // ret = packet_->write1ByteTxRx(port_, (uint8_t)id, 98, 50, &dxl_error);  // Bus Watchdog: 50 = 1000ms
@@ -273,14 +273,29 @@ hardware_interface::return_type PinkySystemHardwareInterface::read(const rclcpp:
     ret = bulk_read_->txRxPacket();
     if(ret != COMM_SUCCESS)
     {
-        RCLCPP_FATAL(get_logger(), "Error txRxPacket@read.");
-        return hardware_interface::return_type::ERROR;
+        RCLCPP_WARN(get_logger(), "Error txRxPacket@read.");
+        return hardware_interface::return_type::OK;
     }
 
-    auto l_cur_vel = (int32_t)(bulk_read_->getData(1, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0);
-    auto r_cur_vel = (int32_t)(bulk_read_->getData(2, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0 * -1);
+    double l_cur_vel = 0;
+    double r_cur_vel = 0;
 
-    // RCLCPP_INFO(get_logger(), "%d %d %f %f", (int32_t)bulk_read_->getData(1, 128, 4), (int32_t)bulk_read_->getData(2, 128, 4), l_cur_vel, r_cur_vel);
+    if((int32_t)bulk_read_->getData(1, 122, 1) != 0)
+    {
+        l_cur_vel = (int32_t)(bulk_read_->getData(1, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0);
+    }
+    if((int32_t)bulk_read_->getData(2, 122, 1) != 0)
+    {
+        r_cur_vel = (int32_t)(bulk_read_->getData(2, 128, 4) - 1) * (0.229 * (2.0 * M_PI) / 60.0 * -1);
+    }
+
+    RCLCPP_DEBUG(get_logger(), "%d %d %d %d %f %f",
+            (int32_t)bulk_read_->getData(1, 122, 1),
+            (int32_t)bulk_read_->getData(2, 122, 1),
+            (int32_t)bulk_read_->getData(1, 132, 4),
+            (int32_t)bulk_read_->getData(2, 132, 4),
+            l_cur_vel,
+            r_cur_vel);
 
     set_state("l_wheel_joint/velocity", l_cur_vel);
     set_state("r_wheel_joint/velocity", r_cur_vel);
