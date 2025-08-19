@@ -10,9 +10,9 @@
                 </xacro:if>
                 <xacro:if value="${sim_type == 'isaacsim'}">
                     <hardware>
-                        <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
-                        <param name="joint_commands_topic">isaac_pinky_joint_commands</param>
-                        <param name="joint_states_topic">isaac_pinky_joint_states</param>
+                        <plugin>joint_state_topic_hardware_interface/JointStateTopicSystem</plugin>
+                        <param name="joint_commands_topic">/isaacsim_pinky_joint_command</param>
+                        <param name="joint_states_topic">/isaacsim_pinky_joint_states</param>
                         <param name="sum_wrapped_joint_states">true</param>
                     </hardware>
                 </xacro:if>

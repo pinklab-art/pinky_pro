@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="insert_robot" params="namespace is_sim:=false sim_type:=gz_sim cam_tilt_deg">
+    <xacro:macro name="insert_robot" params="namespace is_sim:=false sim_type:=gz_sim cam_tilt_deg screen_tilt_deg">
         <xacro:include filename="$(find pinky_description)/urdf/common/insert_inertia.urdf.xacro"/>
         <xacro:include filename="$(find pinky_description)/urdf/pinky_ros2_control.urdf.xacro"/>
 
@@ -126,13 +126,13 @@
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <sphere radius="0.00625"/>
+                    <sphere radius="0.0065"/>
                 </geometry>
             </collision>
             <inertial>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <mass value="0.05"/>
-                <xacro:sphere_inertia m="0.05" r="0.00625"/>
+                <xacro:sphere_inertia m="0.05" r="0.0065"/>
             </inertial>
         </link>
 
@@ -192,27 +192,27 @@
         <joint name="rplidar_mount_fixed_joint" type="fixed">
             <parent link="base_link"/>
             <child link="rplidar_mount"/>
-            <origin xyz="-0.017 0 0.067" rpy="0 0 ${pi}"/>
+            <origin xyz="-0.017 0 0.067" rpy="0 0 0"/>
         </joint>
 
         <link name="rplidar_link"/>
         <joint name="rplidar_link_fixed_joint" type="fixed">
             <parent link="rplidar_mount"/>
             <child link="rplidar_link"/>
-            <origin xyz="0 0 0.030" rpy="0 0 0"/>
+            <origin xyz="0 0 0.030" rpy="0 0 ${pi}"/>
         </joint>
 
         <link name="front_camera_mount">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="package://pinky_description/meshes/visual/front_camera_mount.dae" scale="1 1 1"/>
+                    <mesh filename="package://pinky_description/meshes/visual/camera_assy.dae" scale="1 1 1"/>
                 </geometry>
             </visual>
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="package://pinky_description/meshes/collision/front_camera_mount.stl" scale="1 1 1"/>
+                    <mesh filename="package://pinky_description/meshes/collision/camera_assy.stl" scale="1 1 1"/>
                 </geometry>
             </collision>
             <inertial>
@@ -233,6 +233,32 @@
             <parent link="front_camera_mount"/>
             <child link="front_camera_link"/>
             <origin xyz="0.015 0 -0.0121" rpy="0 0 0"/>
+        </joint>
+
+        <link name="screen_mount">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/visual/screen_assy.dae" scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://pinky_description/meshes/collision/screen_assy.stl" scale="1 1 1"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz="0.01 0 -0.004" rpy="0 0 0"/>
+                <mass value="0.01"/>
+                <xacro:box_inertia m="0.01" x="0.012" y="0.071" z="0.041"/>
+            </inertial>
+        </link>
+
+        <joint name="screen_mount_fixed_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="screen_mount"/>
+            <origin xyz="0.0165 0 0.071" rpy="0 ${screen_tilt_deg/180*pi} 0"/>
         </joint>
 
         <link name="ultrasonic_link"/>

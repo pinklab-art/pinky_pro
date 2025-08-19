@@ -159,6 +159,9 @@ def generate_launch_description():
         launch_arguments = {
             'serial_port': "/dev/ttyAMA0",
             'frame_id': "rplidar_link",
+            'inverted': 'false',
+            'angle_compensate': 'true',
+            'scan_mode': 'DenseBoost',
         }.items()
     )
 
