@@ -5,20 +5,7 @@ from PIL import Image, ImageSequence
 import os
 from pinky_interfaces.srv import Emotion
 
-import os
-import sys
-import time
-import logging
-import spidev as SPI
-from . import LCD_2inch4
-import logging
-
-RST = 27
-DC = 25
-BL = 18
-bus = 0
-device = 0
-logging.basicConfig(level=logging.DEBUG)
+from .pinky_lcd import LCD
 
 class PinkyEmotion(Node):
     def __init__(self):
@@ -27,10 +14,7 @@ class PinkyEmotion(Node):
         self.emotion_path = os.path.join(get_package_share_directory('pinky_emotion'), 'emotion')
         self.emotion_service = self.create_service(Emotion, 'set_emotion', self.lcd_callback)
 
-        self.lcd = LCD_2inch4.LCD_2inch4()
-        self.lcd.Init()
-        self.lcd.clear()
-
+        self.lcd = LCD()
         self.get_logger().info(f"Pinky's emotion server is ready!!")
 
     def lcd_callback(self, request, response):
@@ -66,16 +50,15 @@ class PinkyEmotion(Node):
             response.response = "wrong command"
             self.get_logger().info("wrong command")
 
-        self.lcd.clear_color(0)
+        self.lcd.clear()
 
         return response
 
     def play_gif(self, path):
         img = Image.open(path)
-        for frame in ImageSequence.Iterator(img):
-            frame = frame.resize((320, 240), Image.LANCZOS)
-            processed_frame = frame.convert("RGB").transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_270)
-            self.lcd.ShowImage(processed_frame)
+        for i, frame in enumerate(ImageSequence.Iterator(img)):
+            if i % 2 == 0:
+                self.lcd.img_show(frame)
 
         
 def main(args=None):
@@ -87,7 +70,7 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
-        pinky_lcd_node.lcd.clear_color(0)
+        pinky_lcd_node.lcd.clear()
         pinky_lcd_node.destroy_node()
         rclpy.shutdown()
  
