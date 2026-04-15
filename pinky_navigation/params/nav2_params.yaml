@@ -69,84 +69,105 @@ bt_navigator:
 
 controller_server:
   ros__parameters:
-    controller_frequency: 20.0
-    costmap_update_timeout: 0.30
+    # --- 시스템 기본 설정 ---
+    /bond_disable_heartbeat_timeout: true    # 라이프사이클 노드 간 상태 체크(하트비트) 타임아웃 무시 여부
+
+    # ==========================================================
+    # 1. 주행 컨트롤러 (Regulated Pure Pursuit) 파라미터
+    # ==========================================================
+    FollowPath:
+      plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+      stateful: true                         # 플러그인이 이전 상태를 기억할지 여부
+
+      # 기본 주행 및 속도
+      desired_linear_vel: 0.2                # [m/s] 목표 기본 직진 속도
+      allow_reversing: false                 # 후진 허용 여부 (false: 무조건 전진/제자리 회전으로 해결)
+      max_angular_accel: 3.2                 # [rad/s^2] 최대 각가속도 (회전할 때 얼마나 빨리 가속할지)
+
+      # 경로 추종 (Lookahead, 시선 두기)
+      lookahead_dist: 0.6                    # [m] 기본 전방 주시 거리
+      use_velocity_scaled_lookahead_dist: true # 현재 속도에 비례해 주시 거리를 늘릴지 여부
+      lookahead_time: 1.5                    # [s] 속도 비례 주시 시간 (속도 * 시간 = 주시 거리)
+      min_lookahead_dist: 0.3                # [m] 최소 주시 거리
+      max_lookahead_dist: 0.9                # [m] 최대 주시 거리
+      curvature_lookahead_dist: 0.6          # [m] 경로의 곡률(커브)을 계산하기 위해 내다보는 거리
+      use_fixed_curvature_lookahead: false   # 곡률 계산용 거리를 고정값으로 쓸지 여부 (false면 주시거리와 연동)
+
+      # 제자리 회전 (고개 먼저 돌리기)
+      use_rotate_to_heading: true            # 경로 방향과 로봇 헤딩이 다를 때 제자리 회전 먼저 하기
+      rotate_to_heading_min_angle: 0.35      # [rad] 약 20도 이상 차이나면 제자리 회전 모드 진입
+      rotate_to_heading_angular_vel: 1.0     # [rad/s] 제자리 회전할 때의 회전 속도
+
+      # 커브길 감속 (Regulated)
+      use_regulated_linear_velocity_scaling: false  # 급커브에서 속도 줄이기
+      regulated_linear_scaling_min_radius: 0.5     # [m] 이 반경보다 좁은 커브를 돌 때는 속도를 최소로 낮춤
+      regulated_linear_scaling_min_speed: 0.05     # [m/s] 커브를 돌 때 낼 수 있는 최소 속도 방어선
+
+      # 장애물 접근 시 감속 (Cost Regulated)
+      use_cost_regulated_linear_velocity_scaling: true # 장애물 근처(비용맵 높은 곳)에서 속도 줄이기
+      cost_scaling_dist: 0.6                 # [m] 장애물 중심으로부터 이 거리 안쪽일 때 감속 고려
+      cost_scaling_gain: 1.5                 # 장애물 감속 민감도 (클수록 더 팍 줄임)
+      inflation_cost_scaling_factor: 3.0     # 컨트롤러 내부에서 비용을 계산할 때 쓰는 인플레이션 가중치
+
+      # 목적지 접근 시 감속
+      approach_velocity_scaling_dist: 0.6    # [m] 목표 지점까지 이 거리만큼 남았을 때부터 서서히 감속
+      min_approach_linear_velocity: 0.05     # [m/s] 목표 지점 근처에서 속도를 줄이더라도 이 속도 밑으론 안 내림
+
+      # 안전 및 충돌 방지
+      use_collision_detection: true          # 현재 위치부터 주시점(Lookahead)까지 충돌 여부 미리 검사
+      max_allowed_time_to_collision_up_to_carrot: 1.0 # 주시점(Carrot)까지 가는 도중 충돌까지 허용되는 최대 시간 
+      max_robot_pose_search_dist: 1.4875     # [m] 전역 경로 상에서 로봇과 가장 가까운 점을 찾을 때 최대 탐색 거리
+      transform_tolerance: 0.2               # [s] TF(좌표계 변환) 데이터 최대 허용 지연 시간
+
+      # 취소/종료 시 동작
+      use_cancel_deceleration: false         # 내비게이션 취소 명령이 들어왔을 때 팍 멈추지 않고 부드럽게 감속할지
+      cancel_deceleration: 3.2               # [m/s^2] 취소 시 적용할 감속도
+      interpolate_curvature_after_goal: false # 목표 도달 후 경로 곡률 보간을 계속할지 여부
+
+    # ==========================================================
+    # 2. 컨트롤러 서버 공통 설정
+    # ==========================================================
+    controller_plugins: ["FollowPath"]           # 메인 주행 플러그인 (위에서 설정한 이름)
+    controller_frequency: 20.0                   # [Hz] 제어 명령(cmd_vel)을 1초에 20번 내보냄
+    action_server_result_timeout: 10.0           # [s] 액션 서버 결과 대기 최대 시간
+    autostart_node: false                        # 노드 켤 때 자동 활성화 여부
+    bond_heartbeat_period: 0.1                   # [s] 시스템 상태 체크(하트비트) 주기
+    costmap_update_timeout: 0.3                  # [s] 코스트맵 업데이트가 이 시간 지연되면 멈춤
+    enable_stamped_cmd_vel: false                # TwistStamped 메시지 대신 일반 Twist 메시지 사용
+    failure_tolerance: 0.3                       # [s] 제어 계산 실패를 허용하는 시간
+    publish_zero_velocity: true                  # 목표 도달/취소 시 확실하게 정지하도록 0 속도 명령 발행
+    speed_limit_topic: "speed_limit"             # 속도 제한 구역 적용 시 구독할 토픽 이름
+    odom_topic: "odom"                           # 현재 속도를 읽어올 오도메트리 토픽
+    use_realtime_priority: false                 # 리눅스 실시간(Realtime) 우선순위 사용 여부
+    use_sim_time: false                          # 시뮬레이션 시간 사용 여부 (실제 로봇이므로 false)
+    start_type_description_service: true         # 파라미터 타입 설명 서비스 활성화
+
+    # 미세한 노이즈 속도는 0으로 간주하는 임계치
+    min_theta_velocity_threshold: 0.001
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
-    min_theta_velocity_threshold: 0.001
-    failure_tolerance: 0.3
+
+    # ==========================================================
+    # 3. 목표 도달 판별 (Goal Checker)
+    # ==========================================================
+    goal_checker_plugins: ["general_goal_checker"]
+
+    general_goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      stateful: true
+      xy_goal_tolerance: 0.25                    # [m] 목표 지점 반경 0.25m 안에 들어오면 도착 인정
+      yaw_goal_tolerance: 0.25                   # [rad] 목표 각도 오차 약 14도 이내면 올바르게 본 것으로 인정
+
+    # ==========================================================
+    # 4. 주행 진척도 검사 (Progress Checker)
+    # ==========================================================
+    # 로봇이 좁은 곳에 갇혔거나 끼었는지 판별하는 기능
     progress_checker_plugins: ["progress_checker"]
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
 
-    # 단일 컨트롤러
-    controller_plugins: ["FollowPath"]
-    use_realtime_priority: false
-    enable_stamped_cmd_vel: false
-
-    # Progress checker
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5
-      movement_time_allowance: 10.0
-
-    # Goal checker
-    general_goal_checker:
-      stateful: True
-      plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
-
-    # ★ 여기부터: Regulated Pure Pursuit 컨트롤러 설정
-    FollowPath:
-      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-
-      # 기본 속도들 (Pinky 상황 맞게 나중에 조정 가능)
-      desired_linear_vel: 0.20      # [m/s]
-      max_linear_accel: 0.5         # [m/s^2]
-      max_linear_decel: 0.5         # [m/s^2]
-      max_angular_vel: 1.0          # [rad/s]
-
-      # 경로 추종 관련
-      lookahead_dist: 0.6
-      min_lookahead_dist: 0.3
-      max_lookahead_dist: 0.9
-      lookahead_time: 1.5
-      transform_tolerance: 0.2
-      use_velocity_scaled_lookahead_dist: true
-      use_collision_detection: true
-      use_interpolation: true
-
-      # ========= 회전 우선 관련 핵심 파라미터 =========
-      # 1) 경로 헤딩과 로봇 헤딩 차이가 나면, 먼저 in-place 회전
-      use_rotate_to_heading: true
-
-      # 2) 이 각도(rad) 이상 헤딩 차이가 나면 회전 모드 진입
-      #    0.785 ≒ 45도, 0.523 ≒ 30도, 0.35 ≒ 20도
-      rotate_to_heading_min_angle: 0.35
-
-      # 3) 회전 속도 (in-place 회전일 때 angular vel)
-      rotate_to_heading_angular_vel: 1.0
-
-      # 4) 회전할 때는 전진 속도 0에 가깝게 (거의 제자리 회전)
-      max_angular_accel: 3.2
-      allow_reversing: false
-      use_rotate_to_heading_threshold: 0.15  # 헤딩 오차 이내면 전진으로 전환
-
-      # ========= goal 근처에서 고개 맞추기 =========
-      final_rotation_alpha: 1.0
-      allow_final_rotation: true
-      use_final_rotation: true
-
-      # ========= 안전 관련 =========
-      # 장애물과 너무 가까워지면 속도 줄이거나 정지하는 옵션들
-      use_approach_velocity_scaling: true
-      min_approach_linear_velocity: 0.05
-      inflation_cost_scaling_factor: 3.0
-      regulated_linear_scaling_min_radius: 0.5
-      regulated_linear_scaling_min_speed: 0.05
-      use_cost_regulated_linear_velocity_scaling: true
-      cost_scaling_dist: 0.6
-      cost_scaling_gain: 1.5
+      movement_time_allowance: 10.0              # [s] 이 시간 동안 아래 거리만큼 못 움직이면 끼인 것으로 판단
+      required_movement_radius: 0.5              # [m] 위 시간 동안 최소 0.5m 반경은 벗어나야 함 (못 벗어나면 Recovery 실행)
 
 
 local_costmap:
