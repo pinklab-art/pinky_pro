@@ -7,9 +7,6 @@ ROS2 packages for Pinky Pro
 
 ![Pinky Pro ROS2 아키텍처](doc/architecture.png)
 
-## 💡 Pinky Pro 전용 GPT에게 모르는 건 물어보세요!
-* **[Pinky Assistants (ChatGPT)](https://chatgpt.com/g/g-69141c60b0908191975d16ce2421b768-pinky-pro-assistants)**
-
 ## 📚 문서 및 가이드 (Documentation)
 * **[Pinky Pro 소개](https://github.com/pinklab-art/pinky_study/wiki)**
 
