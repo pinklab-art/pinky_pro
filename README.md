@@ -95,7 +95,7 @@ ros2 launch pinky_navigation nav2_view.launch.xml
 ```
 
 # 시뮬레이션
-## pinky Pro gazebo 실행
+## Pinky Pro gazebo 실행
 #### 가제보 실행
 ```
 ros2 launch pinky_gz_sim launch_sim.launch.xml
