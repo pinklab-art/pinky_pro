@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <launch>
-    <arg name="ip" default="127.0.0.1"/>
+    <arg name="ip" default="0.0.0.0"/>
     <arg name="port" default="8080"/>
     <arg name="use_sim_time" default="True"/>
     <arg name="params_file" default="$(find-pkg-share pinky_navigation)/params/nav2_params.yaml"/>
