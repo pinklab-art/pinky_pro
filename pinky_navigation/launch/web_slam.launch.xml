@@ -9,9 +9,10 @@
     <node pkg="pinky_navigation" exec="nav2_web_server.py" name="nav2_web_server" output="screen">
         <param name="ip" value="$(var ip)"/>
         <param name="port" value="$(var port)"/>
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
     </node>
 
-    <include file="$(find-pkg-share pinky_navigation)/launch/bringup_launch.xml">
+    <include file="$(find-pkg-share pinky_navigation)/launch/navigation_launch.xml">
         <arg name="params_file" value="$(var params_file)"/>
         <arg name="use_sim_time" value="$(var use_sim_time)"/>
     </include>

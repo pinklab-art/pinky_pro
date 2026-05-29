@@ -100,6 +100,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -111,6 +112,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -121,6 +123,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -131,6 +134,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -141,6 +145,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -151,6 +156,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
@@ -161,6 +167,7 @@
             <param name='respawn_delay' value="2.0"/>
             <param name='log_level' value="$(var log_level)"/>
             <param from="$(var params_file)"/>
+            <param name='use_sim_time' value="$(var use_sim_time)"/>
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
