@@ -14,6 +14,9 @@ from rclpy.time import Time
 from nav_msgs.msg import OccupancyGrid, Path
 from nav2_msgs.action import NavigateToPose
 from nav2_msgs.msg import Costmap  # global/local costmap
+from geometry_msgs.msg import PoseWithCovarianceStamped  # AMCL initial pose
+from action_msgs.msg import GoalStatus, GoalStatusArray  # Nav2 action status
+from action_msgs.srv import CancelGoal  # cancel goals from any source
 
 from rclpy.qos import (
     QoSProfile,
@@ -137,6 +140,34 @@ class Nav2WebBridge(Node):
         # Nav2 액션 클라이언트
         self.nav_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
 
+        # Nav2 주행 상태: 액션 상태 토픽을 구독해 실제 주행 여부를 판단
+        # (웹/RViz 등 goal 출처와 무관하게 동작)
+        self._is_navigating = False
+
+        # 액션 상태 토픽 QoS (transient_local + reliable, depth 1)
+        status_qos = QoSProfile(
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+        )
+        self.create_subscription(
+            GoalStatusArray,
+            "navigate_to_pose/_action/status",
+            self.nav_status_callback,
+            status_qos,
+        )
+
+        # 모든 출처의 goal을 취소(정지)하기 위한 액션 cancel 서비스 클라이언트
+        self.cancel_client = self.create_client(
+            CancelGoal, "navigate_to_pose/_action/cancel_goal"
+        )
+
+        # AMCL 초기 위치(initial pose) 퍼블리셔
+        self.initial_pose_pub = self.create_publisher(
+            PoseWithCovarianceStamped, "initialpose", 10
+        )
+
         # ---- SLAM Toolbox 서비스 클라이언트 ----
         # /slam_toolbox/save_map : slam_toolbox/srv/SaveMap
         # /slam_toolbox/reset    : slam_toolbox/srv/Reset
@@ -146,6 +177,13 @@ class Nav2WebBridge(Node):
         self.get_logger().info("Nav2WebBridge (TF-based + SLAM) started.")
 
     # ---------------- 콜백 ----------------
+    def nav_status_callback(self, msg):
+        """Nav2 액션 상태로 주행 중 여부 갱신 (출처 무관)."""
+        active_states = (GoalStatus.STATUS_ACCEPTED, GoalStatus.STATUS_EXECUTING)
+        navigating = any(s.status in active_states for s in msg.status_list)
+        with self.lock:
+            self._is_navigating = navigating
+
     def map_callback(self, msg):
         with self.lock:
             self.map_msg = msg
@@ -206,6 +244,7 @@ class Nav2WebBridge(Node):
             local_costmap_msg = self.local_costmap_msg
             global_costmap_msg = self.global_costmap_msg
             tf_pose = self.tf_pose
+            is_navigating = self._is_navigating
 
         # map
         map_json = None
@@ -280,6 +319,7 @@ class Nav2WebBridge(Node):
             "path": path_json,
             "local_costmap": local_costmap_json,
             "global_costmap": global_costmap_json,
+            "navigating": is_navigating,
         }
 
     # ---------------- Goal 전송 ----------------
@@ -300,6 +340,53 @@ class Nav2WebBridge(Node):
         self.get_logger().info(f"[WEB] send goal: x={x:.2f}, y={y:.2f}, yaw={yaw:.2f}")
 
         self.nav_client.send_goal_async(goal)
+        # 즉각적인 UI 반응을 위해 우선 True로 표시 (이후 상태 토픽이 보정)
+        with self.lock:
+            self._is_navigating = True
+        return True
+
+    # ---------------- AMCL 초기 위치 설정 ----------------
+    def set_initial_pose(self, x, y, yaw):
+        """RViz의 '2D Pose Estimate'와 동일하게 /initialpose 퍼블리시."""
+        msg = PoseWithCovarianceStamped()
+        msg.header.frame_id = "map"
+        msg.header.stamp = self.get_clock().now().to_msg()
+
+        msg.pose.pose.position.x = x
+        msg.pose.pose.position.y = y
+        msg.pose.pose.orientation.z = math.sin(yaw / 2.0)
+        msg.pose.pose.orientation.w = math.cos(yaw / 2.0)
+
+        # RViz 기본값과 동일한 공분산 (x, y, yaw)
+        msg.pose.covariance[0] = 0.25      # x
+        msg.pose.covariance[7] = 0.25      # y
+        msg.pose.covariance[35] = 0.06853891909122467  # yaw
+
+        self.initial_pose_pub.publish(msg)
+        self.get_logger().info(
+            f"[WEB] set initial pose: x={x:.2f}, y={y:.2f}, yaw={yaw:.2f}"
+        )
+        return True
+
+    # ---------------- Nav2 주행 상태/취소 ----------------
+    def is_navigating(self) -> bool:
+        with self.lock:
+            return self._is_navigating
+
+    def cancel_goal(self) -> bool:
+        """Nav2 주행을 취소(정지). goal 출처와 무관하게 모든 goal 취소."""
+        if not self.cancel_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().error(
+                "navigate_to_pose cancel service not available."
+            )
+            return False
+
+        # 빈 goal_info(0 UUID + 0 stamp) → 모든 활성 goal 취소
+        req = CancelGoal.Request()
+        self.cancel_client.call_async(req)
+        with self.lock:
+            self._is_navigating = False
+        self.get_logger().info("[WEB] Requested cancel of all goals (stop).")
         return True
 
     # ---------------- SLAM Toolbox 제어 ----------------
@@ -368,6 +455,43 @@ def api_goal():
     yaw = float(data.get("yaw", 0.0))  # 기본 yaw=0
 
     ok = ros_node.send_goal(x, y, yaw)
+    return jsonify({"success": ok})
+
+
+@app.route("/api/initialpose", methods=["POST"])
+def api_initialpose():
+    """웹에서 AMCL 초기 위치(2D Pose Estimate) 설정"""
+    global ros_node
+    if ros_node is None:
+        return jsonify({"success": False, "msg": "ROS not ready"}), 500
+
+    data = request.get_json()
+    x = float(data["x"])
+    y = float(data["y"])
+    yaw = float(data.get("yaw", 0.0))
+
+    ok = ros_node.set_initial_pose(x, y, yaw)
+    return jsonify({"success": ok})
+
+
+@app.route("/api/nav/status")
+def api_nav_status():
+    """현재 Nav2 주행 중 여부 반환"""
+    global ros_node
+    if ros_node is None:
+        return jsonify({"error": "ROS node not started"}), 500
+
+    return jsonify({"navigating": ros_node.is_navigating()})
+
+
+@app.route("/api/nav/stop", methods=["POST"])
+def api_nav_stop():
+    """현재 Nav2 주행 취소(정지)"""
+    global ros_node
+    if ros_node is None:
+        return jsonify({"success": False, "msg": "ROS not ready"}), 500
+
+    ok = ros_node.cancel_goal()
     return jsonify({"success": ok})
 
 
