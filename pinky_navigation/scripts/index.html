@@ -108,6 +108,9 @@
       border-radius: 18px;
       background: #000;
       border: 1px solid var(--border-subtle);
+      /* 터치 시 브라우저 스크롤 등의 기본 인터랙션 차단 */
+      touch-action: none;
+      cursor: crosshair;
     }
 
     .map-hint {
@@ -373,6 +376,49 @@
       border-color: var(--accent);
     }
 
+    .btn-danger {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .nav-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .nav-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #64748b;
+      flex-shrink: 0;
+    }
+
+    .nav-status-dot.active {
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+    }
+
+    .mode-btn.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
     .slam-status {
       font-size: 11px;
       color: var(--text-muted);
@@ -462,6 +508,37 @@
     </div>
   </div>
 
+  <!-- Nav2 주행 제어 카드 -->
+  <div class="panel-card">
+    <div class="section-title">Nav2 Navigation</div>
+    <div class="nav-status-row">
+      <span id="navStatusDot" class="nav-status-dot"></span>
+      <span id="navStatusText">상태 확인 중...</span>
+    </div>
+
+    <!-- 지도 클릭 모드 선택 -->
+    <div class="slam-actions">
+      <button id="btnModeGoal" class="btn btn-outline mode-btn active">
+        Set Goal
+      </button>
+      <button id="btnModeInit" class="btn btn-outline mode-btn">
+        Set Initial Pose
+      </button>
+    </div>
+    <div class="tiny-note" id="modeHint" style="min-height: 30px;">
+      Click & drag on the map to set the goal position and heading.
+    </div>
+
+    <div class="slam-actions" style="margin-top: 12px;">
+      <button id="btnNavStop" class="btn btn-danger" disabled>
+        ■ Stop
+      </button>
+    </div>
+    <div id="navStopStatus" class="slam-status">
+      <!-- 정지 요청 결과 메시지 -->
+    </div>
+  </div>
+
   <!-- SLAM Mapping 카드 -->
   <div class="panel-card">
     <div class="section-title">SLAM Mapping (slam_toolbox)</div>
@@ -528,11 +605,77 @@ let isDraggingGoal = false;
 let goalStartWorld = null;     // {x,y} world 좌표
 let goalCurrentCanvas = null;  // {x,y} canvas 좌표 (미리보기용)
 
+// 지도 클릭 모드: "goal" = 목적지 전송, "initialpose" = AMCL 초기 위치 설정
+let clickMode = "goal";
+
 // SLAM UI 요소
 const slamStatusEl = document.getElementById("slamStatus");
 const mapNameInput = document.getElementById("mapNameInput");
 const btnSlamReset = document.getElementById("btnSlamReset");
 const btnSlamSave = document.getElementById("btnSlamSave");
+
+// Nav2 제어 UI 요소
+const navStatusDot = document.getElementById("navStatusDot");
+const navStatusText = document.getElementById("navStatusText");
+const btnNavStop = document.getElementById("btnNavStop");
+const navStopStatusEl = document.getElementById("navStopStatus");
+
+// 클릭 모드 토글 UI
+const btnModeGoal = document.getElementById("btnModeGoal");
+const btnModeInit = document.getElementById("btnModeInit");
+const modeHint = document.getElementById("modeHint");
+
+function setClickMode(mode) {
+  clickMode = mode;
+  const isGoal = (mode === "goal");
+  btnModeGoal.classList.toggle("active", isGoal);
+  btnModeInit.classList.toggle("active", !isGoal);
+  modeHint.textContent = isGoal
+    ? "Click & drag on the map to set the goal position and heading."
+    : "Click & drag on the map to set the robot's current pose.";
+}
+
+btnModeGoal.addEventListener("click", () => setClickMode("goal"));
+btnModeInit.addEventListener("click", () => setClickMode("initialpose"));
+
+// Nav2 주행 상태 표시 갱신
+function updateNavStatus(navigating) {
+  if (navigating) {
+    navStatusDot.classList.add("active");
+    navStatusText.textContent = "주행 중 (Navigating)";
+    btnNavStop.disabled = false;
+  } else {
+    navStatusDot.classList.remove("active");
+    navStatusText.textContent = "대기 중 (Idle)";
+    btnNavStop.disabled = true;
+  }
+}
+
+// Stop 버튼: 현재 Nav2 goal 취소
+btnNavStop.addEventListener("click", async () => {
+  navStopStatusEl.classList.remove("ok", "err");
+  navStopStatusEl.textContent = "정지 요청 중...";
+
+  try {
+    const res = await fetch("/api/nav/stop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (data.success) {
+      navStopStatusEl.classList.add("ok");
+      navStopStatusEl.textContent = "정지 요청을 보냈습니다.";
+    } else {
+      navStopStatusEl.classList.add("err");
+      navStopStatusEl.textContent = "정지 요청 실패: " + (data.msg || "");
+    }
+  } catch (e) {
+    console.error(e);
+    navStopStatusEl.classList.add("err");
+    navStopStatusEl.textContent = "정지 요청 중 오류가 발생했습니다.";
+  }
+});
 
 // 토글 이벤트 연결
 document.getElementById("toggleGlobal").addEventListener("change", (e) => {
@@ -615,6 +758,8 @@ async function fetchState() {
     } else {
       document.getElementById("poseText").innerText = "-";
     }
+
+    updateNavStatus(!!data.navigating);
   } catch (e) {
     console.error(e);
   }
@@ -775,14 +920,17 @@ function drawState() {
     const ex = goalCurrentCanvas.x;
     const ey = goalCurrentCanvas.y;
 
-    ctx.strokeStyle = "#fb7185";
+    // 목적지=분홍, 초기 위치=초록(RViz의 2D Pose Estimate와 유사)
+    const previewColor = (clickMode === "initialpose") ? "#22c55e" : "#fb7185";
+
+    ctx.strokeStyle = previewColor;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
     ctx.stroke();
 
-    ctx.fillStyle = "#fb7185";
+    ctx.fillStyle = previewColor;
     ctx.beginPath();
     ctx.arc(ex, ey, 4, 0, 2 * Math.PI);
     ctx.fill();
@@ -812,9 +960,12 @@ function canvasToWorld(cx, cy) {
   return { x: wx, y: wy };
 }
 
-// ---- goal 지정: 클릭 + 드래그 ----
-canvas.addEventListener("mousedown", (evt) => {
+// ---- goal 지정: 클릭 + 드래그 (포인터 이벤트로 마우스/터치 통합 지원) ----
+canvas.addEventListener("pointerdown", (evt) => {
   if (!latestState || !latestState.map) return;
+
+  // 터치가 캔버스 밖으로 나가도 드래그를 유지
+  canvas.setPointerCapture(evt.pointerId);
 
   const rect = canvas.getBoundingClientRect();
   const cx = evt.clientX - rect.left;
@@ -829,7 +980,7 @@ canvas.addEventListener("mousedown", (evt) => {
   drawState(); // 미리보기 갱신
 });
 
-canvas.addEventListener("mousemove", (evt) => {
+canvas.addEventListener("pointermove", (evt) => {
   if (!isDraggingGoal) return;
   const rect = canvas.getBoundingClientRect();
   const cx = evt.clientX - rect.left;
@@ -839,7 +990,10 @@ canvas.addEventListener("mousemove", (evt) => {
   drawState();
 });
 
-canvas.addEventListener("mouseup", async (evt) => {
+canvas.addEventListener("pointerup", async (evt) => {
+  // 포인터 캡처 해제
+  canvas.releasePointerCapture(evt.pointerId);
+
   if (!isDraggingGoal || !goalStartWorld) {
     isDraggingGoal = false;
     goalStartWorld = null;
@@ -863,25 +1017,40 @@ canvas.addEventListener("mouseup", async (evt) => {
   const dy = endWorld.y - goalStartWorld.y;
   const yaw = Math.atan2(dy, dx);
 
-  const goal = {
+  const payload = {
     x: goalStartWorld.x,
     y: goalStartWorld.y,
     yaw: yaw,
   };
-  console.log("Sending goal", goal);
+
+  const endpoint = (clickMode === "initialpose") ? "/api/initialpose" : "/api/goal";
+  console.log(`Sending ${clickMode}`, payload);
 
   try {
-    const res = await fetch("/api/goal", {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(goal),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
-    console.log("Goal response", data);
+    console.log(`${clickMode} response`, data);
+
+    // 초기 위치는 한 번 설정 후 실수 방지를 위해 목적지 모드로 자동 복귀
+    if (clickMode === "initialpose") {
+      setClickMode("goal");
+    }
   } catch (e) {
     console.error(e);
   }
 
+  isDraggingGoal = false;
+  goalStartWorld = null;
+  goalCurrentCanvas = null;
+  drawState();
+});
+
+// 터치가 비정상적으로 취소되거나 기기가 전환될 때 처리
+canvas.addEventListener("pointercancel", () => {
   isDraggingGoal = false;
   goalStartWorld = null;
   goalCurrentCanvas = null;
