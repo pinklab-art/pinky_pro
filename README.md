@@ -22,8 +22,10 @@ ROS2 packages for Pinky Pro
 
 ## 📶 Pinky Pro 데스크톱 앱
 Pinky Pro의 WiFi 설정을 편리하게 진행하려면 아래 데스크톱 앱을 사용하세요.
-*  **[Pinky Studio](https://github.com/pinklab-art/pinky_studio/releases)**
-   
+*  **[Pinky Studio 다운로드](https://github.com/pinklab-art/pinky_studio/releases/latest)**
+   * **설치법:** [Linux](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/linux.md) · [macOS](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/macos.md) · [Windows](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/windows.md)
+   * **사용법:** [MANUAL.md](https://github.com/pinklab-art/pinky_studio/blob/main/MANUAL.md)
+
 ## 🙏 Special Thanks · Contributors
 
 **[byeongkyu](https://github.com/byeongkyu)** – Pinky PRO 모델 ROS 2 패키지 개발  
