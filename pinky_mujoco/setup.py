@@ -1,8 +1,15 @@
 import os
 import glob
+import platform
 from setuptools import find_packages, setup
 
 package_name = 'pinky_mujoco'
+
+# PC simulation package: not installed on aarch64.
+if platform.machine() == 'aarch64':
+    print(f'{package_name} is a PC simulation package. Skip building on aarch64.')
+    setup(name=package_name, version='0.1.0', packages=[], data_files=[], zip_safe=True)
+    raise SystemExit(0)
 
 setup(
     name=package_name,

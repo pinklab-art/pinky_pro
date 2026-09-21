@@ -16,6 +16,14 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   return()
 endif()
 ```
+### 2-1. (MuJoCo 사용 시) pinky_mujoco 패키지의 setup.py 수정
+aarch64 건너뛰기 부분을 삭제하거나 주석 처리
+```
+if platform.machine() == 'aarch64':
+    print(f'{package_name} is a PC simulation package. Skip building on aarch64.')
+    setup(name=package_name, version='0.1.0', packages=[], data_files=[], zip_safe=True)
+    raise SystemExit(0)
+```
 ### 3. 하드웨어 센서 관련 패키지 삭제
 ```
 cd ~/pinky_pro/src/pinky_pro
