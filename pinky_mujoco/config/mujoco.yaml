@@ -1,0 +1,55 @@
+# MuJoCo-only settings. No changes to the common URDF are necessary.
+physics:
+  timestep: 0.002
+  gravity: [0, 0, -9.81]
+  integrator: implicitfast
+  iterations: 80
+contact:
+  solref: [0.008, 1]
+  solimp: [0.95, 0.99, 0.001]
+  friction: [0.9, 0.002, 0.0001]
+  wheel_friction: [1.2, 0.002, 0.0001]
+  caster_friction: [0.02, 0.0001, 0.00001]
+joints:
+  damping: 0.0001
+  armature: 0.00001
+motors:
+  velocity_gain: 0.08
+  max_speed: 14
+  max_torque: 0.15
+  # Wheel speed ramp like the real XL330 velocity profile: Profile Acceleration 200
+  # (pinky_bringup/dynamixel_driver.py) x 214.577 rev/min^2 = 42915 rev/min^2 = 74.9 rad/s^2.
+  wheel_accel: 74.9
+spawn:
+  position: [0, 0, 0.030]
+rates:
+  bridge_hz: 100
+  state_hz: 50
+  scan_hz: 10
+lidar:
+  samples: 360
+  range_min: 0.05
+  range_max: 12.0
+control:
+  max_linear: 0.25
+  max_angular: 1.5
+  command_timeout: 0.5
+camera:
+  # Front camera rendered offscreen and published like the Gazebo camera bridge.
+  # Gazebo sensor: 1280x720 @ 30 Hz, horizontal_fov 1.1519 rad, frame front_camera_link.
+  # Defaults here are lighter; raise width/height/fps to match Gazebo if needed.
+  enabled: true
+  link: front_camera_link
+  width: 640
+  height: 360
+  fps: 15
+  # On software OpenGL (no GPU, llvmpipe) rendering is slow; the bridge measures it and lowers
+  # the frame rate so rendering uses at most this share of wall time. Physics stays real time.
+  max_render_share: 0.25
+  # true: always skip shadow/reflection passes (done automatically on software OpenGL).
+  simple_render: false
+  horizontal_fov: 1.1519
+  # Clip planes follow MuJoCo defaults (near = 1% of scene extent, about 0.07 m here).
+  topic: camera/image_raw
+  info_topic: camera/camera_info
+  frame_id: front_camera_link

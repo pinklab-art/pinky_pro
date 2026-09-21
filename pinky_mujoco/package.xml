@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>pinky_mujoco</name>
+  <version>0.1.0</version>
+  <description>Pinky Pro MuJoCo simulator: URDF to MJCF conversion and a ROS 2 bridge (cmd_vel, odom, scan, joint_states, clock).</description>
+  <maintainer email="kyung133851@pinklab.art">pl3</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>pinky_description</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>python3-pil</exec_depend>
+  <!-- Gazebo worlds/models are loaded from pinky_gz_sim/share (data files only) -->
+  <exec_depend>pinky_gz_sim</exec_depend>
+  <!-- pip only: mujoco==3.6.0, trimesh, pycollada (see README) -->
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -13,6 +13,9 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>tf_transformations</depend>
+  <!-- bringup_sim.launch.xml: MuJoCo is in this repo; Gazebo (pinky_gz_sim) is optional and only
+       needed when sim:=gazebo is selected. -->
+  <exec_depend>pinky_mujoco</exec_depend>
   
   <export>
     <build_type>ament_python</build_type>
