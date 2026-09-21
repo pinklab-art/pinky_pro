@@ -22,9 +22,9 @@ ROS2 packages for Pinky Pro
 
 ## 📶 Pinky Pro 데스크톱 앱
 Pinky Pro의 WiFi 설정을 편리하게 진행하려면 아래 데스크톱 앱을 사용하세요.
-*  **[Pinky Studio 다운로드](https://github.com/pinklab-art/pinky_studio/releases/latest)**
-   * **설치법:** [Linux](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/linux.md) · [macOS](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/macos.md) · [Windows](https://github.com/pinklab-art/pinky_studio/blob/main/docs/install/windows.md)
-   * **사용법:** [MANUAL.md](https://github.com/pinklab-art/pinky_studio/blob/main/MANUAL.md)
+*  **[Pinky Studio 다운로드](https://github.com/pinklab-art/pinky_desktop/releases)**
+   * **설치법:** [Linux](https://github.com/pinklab-art/pinky_desktop/blob/main/docs/install/linux.md) · [macOS](https://github.com/pinklab-art/pinky_desktop/blob/main/docs/install/macos.md) · [Windows](https://github.com/pinklab-art/pinky_desktop/blob/main/docs/install/windows.md)
+   * **사용법:** [MANUAL.md](https://github.com/pinklab-art/pinky_desktop/blob/main/MANUAL.md)
 
 ## 🙏 Special Thanks · Contributors
 
@@ -108,6 +108,10 @@ pip install --break-system-packages "mujoco==3.6.0" "trimesh>=4,<5" "pycollada>=
 #### MuJoCo 실행 (기본)
 ```
 ros2 launch pinky_bringup bringup_sim.launch.xml
+```
+#### MuJoCo 실행 (GPU 사용)
+```
+ros2 launch pinky_bringup bringup_sim.launch.xml use_gpu:=true
 ```
 #### Gazebo 실행
 ```
