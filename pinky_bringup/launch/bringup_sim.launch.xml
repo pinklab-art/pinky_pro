@@ -1,0 +1,48 @@
+<?xml version='1.0' ?>
+
+<!--
+Simulation counterpart of bringup_robot.launch.xml. Pick the simulator here:
+
+  ros2 launch pinky_bringup bringup_robot.launch.xml             real robot
+  ros2 launch pinky_bringup bringup_sim.launch.xml               MuJoCo (default)
+  ros2 launch pinky_bringup bringup_sim.launch.xml sim:=gz       Gazebo
+
+Both simulators publish the same /clock, /odom, /tf, /scan, /joint_states and /camera topics,
+so the pinky_navigation gz_* launches work with either.
+-->
+<launch>
+    <arg name="sim" default="mujoco" description="mujoco | gz (gazebo also accepted)"/>
+
+    <!-- shared -->
+    <arg name="world_name" default="pinky_factory.world" description="World file in pinky_gz_sim/worlds"/>
+    <arg name="cam_tilt_deg" default="8"/>
+
+    <!-- MuJoCo only -->
+    <arg name="use_gpu" default="false" description="MuJoCo: hardware OpenGL (default: software rendering, no GPU needed)"/>
+    <arg name="viewer" default="true" description="MuJoCo: open the viewer window"/>
+    <arg name="camera" default="true" description="MuJoCo: publish /camera/image_raw"/>
+    <arg name="world" default="" description="MuJoCo: absolute world path (overrides world_name)"/>
+
+    <!-- Gazebo only -->
+    <arg name="namespace" default=""/>
+
+    <let name="use_mujoco" value="$(eval '&quot;$(var sim)&quot; == &quot;mujoco&quot;')"/>
+    <let name="use_gazebo" value="$(eval '&quot;$(var sim)&quot; in (&quot;gz&quot;, &quot;gazebo&quot;)')"/>
+
+    <log message="[pinky_bringup] simulator: $(var sim)"/>
+
+    <include file="$(find-pkg-share pinky_mujoco)/launch/launch_sim.launch.py" if="$(var use_mujoco)">
+        <arg name="use_gpu" value="$(var use_gpu)"/>
+        <arg name="viewer" value="$(var viewer)"/>
+        <arg name="camera" value="$(var camera)"/>
+        <arg name="world_name" value="$(var world_name)"/>
+        <arg name="world" value="$(var world)"/>
+        <arg name="cam_tilt_deg" value="$(var cam_tilt_deg)"/>
+    </include>
+
+    <include file="$(find-pkg-share pinky_gz_sim)/launch/launch_sim.launch.xml" if="$(var use_gazebo)">
+        <arg name="world_name" value="$(var world_name)"/>
+        <arg name="cam_tilt_deg" value="$(var cam_tilt_deg)"/>
+        <arg name="namespace" value="$(var namespace)"/>
+    </include>
+</launch>

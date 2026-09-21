@@ -1,0 +1,9 @@
+# Boxes: center [x,y,z], full dimensions [x,y,z]. Units: metres.
+boxes:
+  - {name: north, center: [0, 2.5, 0.3], size: [6.1, 0.1, 0.6]}
+  - {name: south, center: [0, -2.5, 0.3], size: [6.1, 0.1, 0.6]}
+  - {name: east, center: [3, 0, 0.3], size: [0.1, 5, 0.6]}
+  - {name: west, center: [-3, 0, 0.3], size: [0.1, 5, 0.6]}
+  - {name: island, center: [1.25, 0.8, 0.2], size: [0.65, 0.6, 0.4]}
+  - {name: shelf, center: [-1.45, 0.9, 0.25], size: [0.45, 1.0, 0.5]}
+  - {name: low_box, center: [-0.8, -1.25, 0.18], size: [0.55, 0.45, 0.36]}
